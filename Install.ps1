@@ -51,7 +51,7 @@ $hkcu = [Microsoft.Win32.Registry]::CurrentUser
 $basePath = "Software\Classes\*\shell\MultipleFileHelper"
 
 $kRoot = $hkcu.CreateSubKey($basePath)
-$kRoot.SetValue("MUIVerb", "Xử lý nhiều File")
+$kRoot.SetValue("MUIVerb", "Xử lý tên hàng loạt")
 $kRoot.SetValue("SubCommands", "")
 $kRoot.SetValue("Icon", "shell32.dll,133")
 $kRoot.SetValue("MultiSelectModel", "Player")

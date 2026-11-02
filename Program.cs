@@ -11,7 +11,8 @@ namespace MultipleFileHelper;
 
 internal static class Program
 {
-    private const string PipePrefix = "MultipleFileHelper_Pipe_";
+    private const string PipeName = "MultipleFileHelper_Unified_Pipe";
+    private const string MutexName = @"Global\MultipleFileHelper_Unified_Mutex";
 
     [STAThread]
     static void Main(string[] args)
@@ -19,18 +20,18 @@ internal static class Program
         Application.EnableVisualStyles();
         Application.SetCompatibleTextRenderingDefault(false);
 
-        ToolAction action = ToolAction.Numbering;
+        int initialTab = 0;
         var directFiles = new List<string>();
 
         foreach (var arg in args)
         {
             if (string.Equals(arg, "--action=remove-prefix", StringComparison.OrdinalIgnoreCase))
             {
-                action = ToolAction.RemovePrefixChars;
+                initialTab = 1;
             }
             else if (string.Equals(arg, "--action=numbering", StringComparison.OrdinalIgnoreCase))
             {
-                action = ToolAction.Numbering;
+                initialTab = 0;
             }
             else
             {
@@ -42,20 +43,17 @@ internal static class Program
             }
         }
 
-        string mutexName = @"Global\MultipleFileHelper_Mutex_" + action.ToString();
-        string pipeName = PipePrefix + action.ToString();
-
         bool isPrimary;
-        using var mutex = new Mutex(true, mutexName, out isPrimary);
+        using var mutex = new Mutex(true, MutexName, out isPrimary);
 
         if (!isPrimary)
         {
-            SendFilesToPrimaryInstance(pipeName, directFiles);
+            SendFilesToPrimaryInstance(directFiles);
             return;
         }
 
         var allFiles = new List<string>(directFiles);
-        CollectFilesFromSecondaryInstances(pipeName, allFiles, timeoutMs: 400);
+        CollectFilesFromSecondaryInstances(allFiles, timeoutMs: 400);
 
         allFiles = allFiles
             .Where(File.Exists)
@@ -72,27 +70,27 @@ internal static class Program
             return;
         }
 
-        using var form = new MainForm(allFiles, action);
+        using var form = new MainForm(allFiles, initialTab);
         if (form.ShowDialog() != DialogResult.OK)
             return;
 
-        var sortedFiles = form.GetSortedFiles();
-        var plans = sortedFiles.Select((file, index) =>
-        {
-            string directory = Path.GetDirectoryName(file)!;
-            string newFileName = form.BuildNewFileName(file, index);
-            return new RenamePlan(file, Path.Combine(directory, newFileName));
-        }).ToList();
+        var plans = form.ResultItems
+            .Where(item => !string.Equals(item.OriginalPath, item.FinalPath, StringComparison.OrdinalIgnoreCase))
+            .Select(item => new RenamePlan(item.OriginalPath, item.FinalPath))
+            .ToList();
 
-        RenameFiles(plans);
+        if (plans.Count > 0)
+        {
+            RenameFiles(plans);
+        }
     }
 
-    private static void SendFilesToPrimaryInstance(string pipeName, List<string> files)
+    private static void SendFilesToPrimaryInstance(List<string> files)
     {
         if (files.Count == 0) return;
         try
         {
-            using var client = new NamedPipeClientStream(".", pipeName, PipeDirection.Out);
+            using var client = new NamedPipeClientStream(".", PipeName, PipeDirection.Out);
             client.Connect(1000);
             using var writer = new StreamWriter(client, Encoding.UTF8);
             foreach (var f in files)
@@ -106,7 +104,7 @@ internal static class Program
         }
     }
 
-    private static void CollectFilesFromSecondaryInstances(string pipeName, List<string> fileList, int timeoutMs)
+    private static void CollectFilesFromSecondaryInstances(List<string> fileList, int timeoutMs)
     {
         using var cts = new CancellationTokenSource(timeoutMs);
 
@@ -115,7 +113,7 @@ internal static class Program
             try
             {
                 using var server = new NamedPipeServerStream(
-                    pipeName,
+                    PipeName,
                     PipeDirection.In,
                     NamedPipeServerStream.MaxAllowedServerInstances,
                     PipeTransmissionMode.Byte,
@@ -176,20 +174,14 @@ internal static class Program
         {
             foreach (var plan in plans)
             {
-                if (string.Equals(plan.OldPath, plan.NewPath, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
                 string dir = Path.GetDirectoryName(plan.OldPath)!;
-                string temp = Path.Combine(dir, ".fn_" + Guid.NewGuid().ToString("N") + ".tmp");
+                string temp = Path.Combine(dir, ".mfh_" + Guid.NewGuid().ToString("N") + ".tmp");
                 File.Move(plan.OldPath, temp);
                 tempPaths.Add(plan.OldPath, temp);
             }
 
             foreach (var plan in plans)
             {
-                if (string.Equals(plan.OldPath, plan.NewPath, StringComparison.OrdinalIgnoreCase))
-                    continue;
-
                 File.Move(tempPaths[plan.OldPath], plan.NewPath);
             }
 
