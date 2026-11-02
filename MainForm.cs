@@ -148,8 +148,8 @@ public class MainForm : Form
         tabNumbering.Controls.Add(flowNum);
         tabFeatures.TabPages.Add(tabNumbering);
 
-        // TAB 2: Xóa ký tự trong khoảng
-        var tabRemove = new TabPage("2. Xóa ký tự trong khoảng");
+        // TAB 2: Xóa ký tự
+        var tabRemove = new TabPage("2. Xóa ký tự");
         var flowRemove = new FlowLayoutPanel
         {
             Dock = DockStyle.Fill,

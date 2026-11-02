@@ -69,15 +69,29 @@ $kSub1Cmd.SetValue("", "`"$destExe`" --action=numbering `"%1`"")
 $kSub1Cmd.Close()
 $kSub1.Close()
 
-# Submenu 2: Xóa n ký tự đầu
+# Submenu 2: Xóa ký tự
+$sub2Key = "$shellPath\02_RemovePrefix"
+New-Item -Path "$sub2Key\command" -Force | Out-Null
 $kSub2 = $hkcu.CreateSubKey("$shellPath\02_RemovePrefix")
-$kSub2.SetValue("MUIVerb", "Xóa n ký tự đầu")
+$kSub2.SetValue("MUIVerb", "Xóa ký tự")
 $kSub2.SetValue("MultiSelectModel", "Player")
 $kSub2.SetValue("Icon", "shell32.dll,131")
 $kSub2Cmd = $kSub2.CreateSubKey("command")
 $kSub2Cmd.SetValue("", "`"$destExe`" --action=remove-prefix `"%1`"")
 $kSub2Cmd.Close()
 $kSub2.Close()
+
+# Submenu 3: Sao chép danh sách tên
+$sub3Key = "$shellPath\03_CopyNames"
+New-Item -Path "$sub3Key\command" -Force | Out-Null
+$kSub3 = $hkcu.CreateSubKey("$shellPath\03_CopyNames")
+$kSub3.SetValue("MUIVerb", "Sao chép danh sách tên")
+$kSub3.SetValue("MultiSelectModel", "Player")
+$kSub3.SetValue("Icon", "shell32.dll,134")
+$kSub3Cmd = $kSub3.CreateSubKey("command")
+$kSub3Cmd.SetValue("", "`"$destExe`" --action=copy-names `"%1`"")
+$kSub3Cmd.Close()
+$kSub3.Close()
 
 # Xoa cac menu cu neu con ton tai tren he thong (bang .NET API cuc nhanh)
 foreach ($old in @("Software\Classes\*\shell\BatchFileTools", "Software\Classes\*\shell\FileNumberingTool")) {

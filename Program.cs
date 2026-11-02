@@ -21,11 +21,16 @@ internal static class Program
         Application.SetCompatibleTextRenderingDefault(false);
 
         int initialTab = 0;
+        bool isCopyNamesOnly = false;
         var directFiles = new List<string>();
 
         foreach (var arg in args)
         {
-            if (string.Equals(arg, "--action=remove-prefix", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(arg, "--action=copy-names", StringComparison.OrdinalIgnoreCase))
+            {
+                isCopyNamesOnly = true;
+            }
+            else if (string.Equals(arg, "--action=remove-prefix", StringComparison.OrdinalIgnoreCase))
             {
                 initialTab = 1;
             }
@@ -67,6 +72,31 @@ internal static class Program
                 "MultipleFileHelper",
                 MessageBoxButtons.OK,
                 MessageBoxIcon.Information);
+            return;
+        }
+
+        // Nếu người dùng chọn chức năng chép tên từ context menu -> Copy nhanh và thông báo nhẹ
+        if (isCopyNamesOnly)
+        {
+            var sb = new StringBuilder();
+            foreach (var f in allFiles)
+            {
+                sb.AppendLine(Path.GetFileName(f));
+            }
+
+            try
+            {
+                Clipboard.SetText(sb.ToString());
+                MessageBox.Show(
+                    $"Đã sao chép {allFiles.Count} tên file vào Clipboard!",
+                    "Sao chép tên file",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi sao chép Clipboard: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
             return;
         }
 
