@@ -7,8 +7,8 @@ mod tests {
     #[test]
     fn test_numbering_plan() {
         let files = vec![
-            PathBuf::from(r"C:\test\photo_b.jpg"),
-            PathBuf::from(r"C:\test\photo_a.jpg"),
+            PathBuf::from("test").join("photo_b.jpg"),
+            PathBuf::from("test").join("photo_a.jpg"),
         ];
         let cfg = NumberingConfig {
             start: 1,
@@ -30,8 +30,8 @@ mod tests {
     #[test]
     fn test_trim_prefix_plan() {
         let files = vec![
-            PathBuf::from(r"C:\test\01 - document.pdf"),
-            PathBuf::from(r"C:\test\02_track.mp3"),
+            PathBuf::from("test").join("01 - document.pdf"),
+            PathBuf::from("test").join("02_track.mp3"),
         ];
         let cfg = TrimConfig {
             count: 2,
@@ -54,8 +54,6 @@ mod tests {
         File::create(&file_a).unwrap();
         File::create(&file_b).unwrap();
 
-        // Đổi tên hoán vị vòng tròn: a -> b_temp, b -> a_temp
-        // Với two-phase rename an toàn, a -> b, b -> a phải thực hiện trơn tru không lỗi va chạm file
         let target_a = temp_dir.join("b_new.txt");
         let target_b = temp_dir.join("a_new.txt");
 
@@ -73,7 +71,6 @@ mod tests {
         assert!(!file_a.exists());
         assert!(!file_b.exists());
 
-        // Dọn dẹp
         std::fs::remove_dir_all(&temp_dir).ok();
     }
 }

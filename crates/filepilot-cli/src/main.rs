@@ -10,6 +10,7 @@ use filepilot_platform::{
 };
 use std::collections::HashSet;
 use std::path::PathBuf;
+#[cfg(target_os = "windows")]
 use std::time::Duration;
 
 #[derive(Parser, Debug)]
@@ -59,14 +60,15 @@ fn main() {
         return;
     }
 
-    let mut direct_files: Vec<PathBuf> = args
+    let direct_files: Vec<PathBuf> = args
         .files
         .into_iter()
         .filter(|p| p.exists())
         .collect();
 
     #[cfg(target_os = "windows")]
-    {
+    let direct_files = {
+        let mut direct_files = direct_files;
         // 1. Kiểm tra Single Instance Mutex để gom file khi Explorer gọi nhiều process song song
         let mutex = match SingleInstanceMutex::acquire(MUTEX_NAME) {
             Ok(m) => m,
@@ -85,7 +87,8 @@ fn main() {
         // Là process chính: chờ thu thập file từ các sub-instances nếu có
         let extra = IpcServer::collect_paths(PIPE_NAME, Duration::from_millis(100));
         direct_files.extend(extra);
-    }
+        direct_files
+    };
 
     // Lọc trùng lặp và kiểm tra tồn tại
     let mut seen = HashSet::new();
