@@ -1,0 +1,15 @@
+[workspace]
+members = [
+    "crates/filepilot-core",
+    "crates/filepilot-config",
+    "crates/filepilot-platform",
+    "crates/filepilot-cli",
+]
+resolver = "2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

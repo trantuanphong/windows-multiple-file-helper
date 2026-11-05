@@ -1,0 +1,21 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=all/all;
+Actions=filepilotNumbering;filepilotRemovePrefix;filepilotCopyNames;
+X-KDE-Submenu=FilePilot
+
+[Desktop Action filepilotNumbering]
+Name=Đánh số thứ tự
+Icon=format-list-ordered
+Exec=filepilot-cli --action=numbering %F
+
+[Desktop Action filepilotRemovePrefix]
+Name=Xóa ký tự đầu
+Icon=edit-clear
+Exec=filepilot-cli --action=remove-prefix %F
+
+[Desktop Action filepilotCopyNames]
+Name=Sao chép danh sách tên
+Icon=edit-copy
+Exec=filepilot-cli --action=copy-names %F

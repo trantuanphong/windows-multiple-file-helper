@@ -70,8 +70,6 @@ $kSub1Cmd.Close()
 $kSub1.Close()
 
 # Submenu 2: Xóa ký tự
-$sub2Key = "$shellPath\02_RemovePrefix"
-New-Item -Path "$sub2Key\command" -Force | Out-Null
 $kSub2 = $hkcu.CreateSubKey("$shellPath\02_RemovePrefix")
 $kSub2.SetValue("MUIVerb", "Xóa ký tự")
 $kSub2.SetValue("MultiSelectModel", "Player")
@@ -82,10 +80,9 @@ $kSub2Cmd.Close()
 $kSub2.Close()
 
 # Submenu 3: Sao chép danh sách tên
-$sub3Key = "$shellPath\03_CopyNames"
-New-Item -Path "$sub3Key\command" -Force | Out-Null
+# Submenu 3: Sao chép danh sách tên
 $kSub3 = $hkcu.CreateSubKey("$shellPath\03_CopyNames")
-$kSub3.SetValue("MUIVerb", "Sao chép danh sách tên")
+$kSub3.SetValue("MUIVerb", "Sao chép tên")
 $kSub3.SetValue("MultiSelectModel", "Player")
 $kSub3.SetValue("Icon", "shell32.dll,134")
 $kSub3Cmd = $kSub3.CreateSubKey("command")

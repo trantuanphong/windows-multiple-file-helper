@@ -1,0 +1,6 @@
+[target.x86_64-pc-windows-gnu]
+linker = "C:\\Users\\Phong\\.rustup\\toolchains\\stable-x86_64-pc-windows-gnu\\lib\\rustlib\\x86_64-pc-windows-gnu\\bin\\self-contained\\x86_64-w64-mingw32-gcc.exe"
+ar = "C:\\Users\\Phong\\.rustup\\toolchains\\stable-x86_64-pc-windows-gnu\\lib\\rustlib\\x86_64-pc-windows-gnu\\bin\\self-contained\\dlltool.exe"
+
+[env]
+PATH = { value = "C:\\Users\\Phong\\.rustup\\toolchains\\stable-x86_64-pc-windows-gnu\\lib\\rustlib\\x86_64-pc-windows-gnu\\bin\\self-contained", relative = false }
